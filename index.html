@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Didáctica Interactiva - Matemática 4º Grado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Librería para renderizar Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .card-hover-effect { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover-effect:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .tab-active { border-bottom-color: #ec4899; color: #ec4899; }
+        #app { flex-grow: 1; }
+        .ai-chat-bubble-user { background-color: #ec4899; color: white; }
+        .ai-chat-bubble-assistant { background-color: #e5e7eb; color: #1f2937; }
+        .markdown-content ul { list-style-type: disc; margin-left: 20px; }
+        .markdown-content ol { list-style-type: decimal; margin-left: 20px; }
+        .markdown-content p { margin-bottom: 0.5rem; }
+        .markdown-content strong { font-weight: 600; }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- El contenido principal se renderizará aquí -->
+    </div>
+
+    <!-- Contenedor para el Botón Flotante del Asistente IA -->
+    <div id="ai-button-container"></div>
+
+    <!-- Modal del Asistente IA -->
+    <div id="ai-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg flex flex-col" style="height: 70vh;">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-bold text-pink-600">✨ Asistente Docente IA</h3>
+                <button onclick="closeAIModal()" class="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 flex flex-col">
+                <!-- Mensajes del chat se insertarán aquí -->
+            </div>
+            <div id="ai-loading" class="hidden p-4 text-center">
+                <span class="text-gray-500">Pensando...</span>
+            </div>
+            <div class="p-4 border-t">
+                <form onsubmit="sendAIMessage(event)" class="flex gap-2">
+                    <input id="ai-input" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500" placeholder="Ej: Dame ideas para la Secuencia 1...">
+                    <button type="submit" class="px-4 py-2 bg-pink-600 text-white rounded-md hover:bg-pink-700">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center py-4 mt-auto border-t border-gray-200 bg-white">
+        <p class="text-sm text-gray-500">Creado por Jonathan Ovalle - OVM Consulting 2025. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // --- BASE DE DATOS DE USUARIOS ---
+        const usuarios = { 'jvalle': 'mat2025', 'maestro1': 'clave123', 'admin': 'adminpass' };
+
+        // --- DATOS DE LA GUÍA DIDÁCTICA ---
+        const datosGuia = [
+            // SECUENCIA 1: NÚMEROS NATURALES
+            {
+                id: 1,
+                titulo: "Números Naturales hasta el 999,999",
+                contexto: "La agricultura en la República Dominicana, explorando la producción de cacao, café, caña de azúcar, y otros rubros esenciales para la economía y dieta dominicana.",
+                imagen: "https://images.pexels.com/photos/2132126/pexels-photo-2132126.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresa ideas en lenguaje matemático para discutir situaciones de problemas del contexto.", "Formula con sentido lógico ideas matemáticas válidas para proponer soluciones.", "Reconoce normas de convivencia y trabajo en equipo."],
+                contenidos: ["Secuencia de números naturales hasta 999,999.", "Valor posicional y redondeo.", "Comparación de números (> < =).", "Números pares, impares y ordinales.", "Patrones numéricos y números romanos."],
+                actividades: [
+                    { titulo: "Actividad 1: Los números en mi país", intencion: "Leer, escribir y representar números naturales hasta 100,000.", video: "https://www.youtube.com/watch?v=86pKpy2JLk8" },
+                    { titulo: "Actividad 2: Explorando el valor de posición", intencion: "Determinar el valor posicional y el valor de un dígito.", video: "https://www.youtube.com/watch?v=eNodAB9v6YM" },
+                    { titulo: "Actividad 3: Uso del valor posicional", intencion: "Escribir cantidades en palabras utilizando la tabla de valor posicional." },
+                    { titulo: "Actividad 4: Forma desarrollada de un número", intencion: "Escribir números naturales en forma desarrollada y estándar.", video: "https://www.youtube.com/watch?v=aBFrOt_1d24" },
+                    { titulo: "Actividad 5: ¿Quién tiene más?", intencion: "Comparar números naturales en su contexto.", video: "https://www.youtube.com/watch?v=ruw-ZxE1vaM", recurso: "https://www.liveworksheets.com/w/es/matematicas/111081" },
+                    { titulo: "Actividad 6: ¡Qué divertido es redondear!", intencion: "Resolver situaciones problemáticas utilizando el redondeo de números.", video: "https://www.youtube.com/watch?v=-g8SvIN3HOU" },
+                    { titulo: "Actividad 7: Me divierto jugando", intencion: "Retroalimentar temas de la secuencia a través de un juego de tarjetas." },
+                    { titulo: "Actividad 8: Clasifico números en pares e impares", intencion: "Identificar números pares e impares en la vida cotidiana.", video: "https://www.youtube.com/watch?v=M4ew1mz2UV8", recurso: "https://wordwall.net/es/resource/3695255/pares-e-impares" },
+                    { titulo: "Actividad 9: Orden de llegada", intencion: "Determinar el número ordinal correspondiente a grupos ordenados.", video: "https://youtu.be/jZ-IwVoaEM0?si=WTk2DXautyJa3H", recurso: "https://wordwall.net/es/resource/65171670/n%C3%BAmeros-ordinales" },
+                    { titulo: "Actividad 10: Me divierto con los patrones", intencion: "Resolver problemas utilizando patrones numéricos.", video: "https://www.youtube.com/watch?v=iJdZRmghWlw", recurso: "https://wordwall.net/es/resource/21935137/patrones-numericos" },
+                    { titulo: "Actividad 11: Otra forma de escribir los números", intencion: "Resolver situaciones problemáticas utilizando números romanos.", video: "https://www.youtube.com/watch?v=8KKaL63puko" }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Resuelve el siguiente problema: En la provincia de Puerto Plata se usan semanalmente doscientos cuarenta y cinco mil trescientos noventa y cuatro piñas para los hoteles. ¿Cómo se escribe esa cantidad en número?" },
+                    { numero: 2, enunciado: "Resuelve el siguiente problema: Alexander vendió en el año 2023 un total de 143,242 tomates de su finca. ¿Cómo se escribe 143,242 en palabras?" },
+                    { numero: 3, enunciado: "Analiza y escribe la respuesta correcta. En la provincia de San Juan se cosechan aproximadamente 867,432 plátanos al año.", partes: ["¿Cuál es el valor posicional del dígito 8 en 867,432?", "¿Cuál es el valor posicional del dígito 4 en 867,432?", "¿Cuál es el valor posicional del dígito 2 en 867,432?", "¿Cuál es el valor posicional del dígito 6 en 867,432?", "¿Cuál es el valor posicional del dígito 3 en 867,432?"] },
+                    { numero: 4, enunciado: "Escribe el valor del dígito en negrita.", partes: ["a. 35<strong>4</strong>,435", "b. <strong>7</strong>34,201", "c. 90<strong>6</strong>,452", "d. 902,<strong>3</strong>11"] },
+                    { numero: 5, enunciado: "Analiza y resuelve el siguiente problema: En Santo Domingo se consume todos los días un total de 243,678 guineos en los diferentes hogares. ¿Cómo se escribe 243,678 en forma desarrollada? ¿La cantidad 243,678 es par o impar? ¿Por qué?" },
+                    { numero: 6, enunciado: "Analiza y resuelve el siguiente problema: En República Dominicana en febrero del año 2023, se produjeron 77,099 toneladas de plátanos. Si el consumo interno fue de 45,175 toneladas, ¿se produce más plátanos de lo que se consumen? ¿por qué?" },
+                    { numero: 7, enunciado: "Resuelve el siguiente problema: En el año 2023, República Dominicana produjo 615,553 toneladas de arroz. ¿Cómo se redondea esa cantidad a la decena de millar más cercana?" },
+                    { numero: 8, enunciado: "Escribe en palabras los siguientes números ordinales.", partes: ["a. 38º", "b. 25º", "c. 44º", "d. 86º", "e. 56º", "f. 93º", "g. 100º", "h. 51º", "i. 17º", "j. 74º"] },
+                    { numero: 9, enunciado: "Resuelve el siguiente problema de patrones numéricos: Si cada mano de guineo tiene 10, ¿cuántos guineos tendrán 8 manos? Escribe una secuencia de números para determinar el resultado." },
+                    { numero: 10, enunciado: "Escribe en romanos los siguientes números:", partes: ["a. 21", "b. 56", "c. 93", "d. 78", "e. 125"] }
+                ]
+            },
+            // SECUENCIA 2: ADICIÓN Y SUSTRACCIÓN
+            {
+                id: 2,
+                titulo: "Adición y Sustracción de Números Naturales",
+                contexto: "El crecimiento poblacional de Santiago de los Caballeros, analizando datos de los censos de 2010 y 2022 para comprender la dinámica demográfica.",
+                imagen: "https://images.pexels.com/photos/16140590/pexels-photo-16140590/free-photo-of-monumento-a-los-heroes-de-la-restauracion-in-santiago-de-los-caballeros-dominican-republic.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresa ideas en lenguaje matemático para discutir situaciones del contexto.", "Formula ideas matemáticas lógicas para proponer soluciones.", "Reconoce normas de convivencia y trabajo en equipo."],
+                contenidos: ["Adición y sustracción con números naturales hasta 999,999.", "Propiedades de la adición (Conmutativa y asociativa).", "Estimación a partir del redondeo.", "Cálculo mental."],
+                actividades: [
+                    { titulo: "Actividad 1: Recordando la adición", intencion: "Resolver problemas de adición con cantidades menores que 100,000." },
+                    { titulo: "Actividad 2: Adición de números naturales", intencion: "Resolver problemas de adición con resultados mayores que 100,000 usando la tabla de valor posicional.", video: "https://www.youtube.com/watch?v=HVZxhXBd3zs" },
+                    { titulo: "Actividad 3: Adición con números naturales", intencion: "Resolver problemas del contexto usando la adición con diferentes estrategias (descomposición, tradicional, tabla de valor)." },
+                    { titulo: "Actividad 4: Propiedades de la adición (Conmutativa)", intencion: "Valorar la importancia de la propiedad conmutativa para calcular con mayor agilidad." },
+                    { titulo: "Actividad 5: Más propiedades de la adición (Asociativa)", intencion: "Desarrollar habilidades para el cálculo de sumas usando la propiedad asociativa.", video: "https://www.youtube.com/watch?v=3AHOBJTqrVM" },
+                    { titulo: "Actividad 6: Jugando a la ruleta", intencion: "Resolver situaciones usando las propiedades de la adición con un juego de ruleta.", recurso: "https://es.piliapp.com/random/wheel/" },
+                    { titulo: "Actividad 7: Estimación de números naturales", intencion: "Estimar sumas mediante el redondeo de los sumandos." },
+                    { titulo: "Actividad 8: Sustracción de números naturales", intencion: "Resolver problemas del contexto usando la sustracción.", recurso: "https://wordwall.net/es/resource/6258179/numeros/sumas-y-restas" },
+                    { titulo: "Actividad 9: Sustracción de Número naturales", intencion: "Identificar y resolver problemas de sustracción en su entorno.", recursos: ["https://wordwall.net/es/resource/4174114/sumas-y-restas-mentales", "https://wordwall.net/es/resource/3659514/sumas-y-restas-tenebrosas"] },
+                    { titulo: "Actividad 10: Estimación de números naturales", intencion: "Resolver problemas de sustracción utilizando la estimación.", recurso: "https://la.ixl.com/matematicas/3-grado/estimar-restas" },
+                    { titulo: "Actividad 11: Juego del boliche matemático", intencion: "Retroalimentar operaciones de adición y sustracción con el juego del boliche." }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Estimar las siguientes cantidades a la decena de millar más cercana:", partes: ["a. 254,735", "b. 334,891", "c. 837,452", "d. 155,357"] },
+                    { numero: 2, enunciado: "Resuelve el siguiente problema: ¿Cuántos habitantes tiene en total el municipio de Villa González, si tiene 18,288 en la zona urbana y 19,061 en la zona rural?" },
+                    { numero: 3, enunciado: "Resuelve el siguiente problema: En el censo del 2022 en Baitoa hay 6,135 hombres y en Jánico, 7,824, ¿cuántos hombres en total viven en los lugares mencionados?" },
+                    { numero: 4, enunciado: "Determina el resultado de cada ejercicio estimando, a la posición indicada:", partes: ["79,562 + 17,322 (Estimar a la centena más cercana)", "26,317 + 53,305 (Estimar a la unidad de millar más cercana)"] },
+                    { numero: 5, enunciado: "Analiza y resuelve el siguiente problema: En el año 2010, las provincias Espaillat y Puerto Plata, tenían 231,938 y 321,577 habitantes, respectivamente. ¿Qué cantidad de habitantes vivían en total, en estas 2 provincias?" },
+                    { numero: 6, enunciado: "Escribe al lado de cada operación matemática la propiedad que se debe usar en cada caso para resolver cada ejercicio de dos maneras diferentes:", partes: ["a. 22,880 + 60,483", "b. 32,570 + 58,521 + 15,047", "c. 1,900 + 6,520 + 3,285", "d. 79,522 + 41,694"] },
+                    { numero: 7, enunciado: "Resuelve el siguiente problema: En el municipio de Puñal viven 17,071 personas en la zona rural y en el de Villa González viven 19,061 personas en la zona rural. ¿Cuántas personas más viven en la zona rural de Villa González, que en Puñal?" },
+                    { numero: 8, enunciado: "Escribe los nombres de los elementos de la adición y sustracción siguiente: 6,006 + 7,201 y 3,680 - 1,230." },
+                    { numero: 9, enunciado: "Resuelve el siguiente problema de sustracción, redondeando primero las cantidades a la decena de millar más cercana: Rosa dice que, aproximadamente más de 17,000 personas viven en la zona rural que en la zona urbana de Bisonó. Si en la zona rural viven 10,484 personas y en la urbana 31,308, ¿tiene razón Rosa? Justifica." },
+                    { numero: 10, enunciado: "Encierra en un círculo la respuesta correcta en cada caso:", partes: ["En la sustracción 47,522 - 26,317 = 21,205 ¿Qué cantidad corresponde al minuendo? a. 21,205 b. 47,522 c. 26,317", "En la sustracción 47,522 - 26,317 = 21,205 ¿Qué cantidad corresponde al sustraendo? a. 21,205 b. 47,522 c. 26,317", "En la sustracción 47,522 - 26,317 = 21,205 ¿Qué cantidad corresponde a la resta o diferencia? a. 21,205 b. 47,522 c. 26,317", "En la adición 21,205 + 26,317 = 47,522 ¿Qué cantidad corresponde a la suma o total? a. 21,205 b. 47,522 c. 26,317"] }
+                ]
+            },
+            // SECUENCIA 3: MULTIPLICACIÓN Y DIVISIÓN
+            {
+                id: 3,
+                titulo: "Multiplicación y División de Números Naturales",
+                contexto: "Los colmados en la República Dominicana, entendiendo su rol fundamental en la economía de los barrios y zonas rurales.",
+                imagen: "https://images.pexels.com/photos/16232537/pexels-photo-16232537/free-photo-of-hombre-en-una-tienda-de-la-esquina-en-la-republica-dominicana.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Concepto de multiplicación y división.", "Algoritmos y propiedades (conmutativa, asociativa, cero, uno).", "División exacta e inexacta.", "Potencias (cuadrados y cubos).", "Concepto de razón."],
+                actividades: [
+                    { titulo: "Actividad 1: Sumas repetidas", intencion: "Resolver problemas de multiplicación como sumas repetidas.", recurso: "https://www.liveworksheets.com/es/w/es/matematicas/533360" },
+                    { titulo: "Actividad 2: La multiplicación", intencion: "Resolver situaciones problemáticas usando la multiplicación.", video: "https://www.youtube.com/watch?v=xGKsYyyDSCI&t=204s", recurso: "https://wordwall.net/es-ar/community/juegos-de-tablas-de-multiplicar" },
+                    { titulo: "Actividad 3: Multiplicación de grandes cantidades", intencion: "Resolver problemas que requieran multiplicación con números naturales." },
+                    { titulo: "Actividad 4: Multiplicación de otras cantidades", intencion: "Resolver problemas de multiplicación con factores de más de 2 dígitos.", video: "https://www.youtube.com/watch?v=bjWBeLKuNMc&ab_channel=MateFacil" },
+                    { titulo: "Actividad 5: Propiedades de la multiplicación (Conmutativa)", intencion: "Resolver problemas usando la propiedad conmutativa.", recurso: "https://wordwall.net/es/resource/19993149/propiedad-conmutativa-de-la-multiplicaci%C3%B3n" },
+                    { titulo: "Actividad 6: Propiedades de la multiplicación (Elemento neutro y absorbente)", intencion: "Resolver problemas usando las propiedades del 1 (neutro) y 0 (absorbente).", video: "https://www.youtube.com/watch?v=Q6Dt6A_Y93w" },
+                    { titulo: "Actividad 7: Más propiedades de la multiplicación (Asociativa)", intencion: "Resolver problemas del contexto donde se aplique la propiedad asociativa.", video: "https://www.youtube.com/watch?v=680WxpuGQfg" },
+                    { titulo: "Actividad 8: La potenciación", intencion: "Resolver problemas del contexto usando potencias (cuadrados y cubos).", video: "https://www.youtube.com/watch?v=WgqovnSC-no" },
+                    { titulo: "Actividad 9: La división", intencion: "Resolver problemas usando la división como reparto equitativo." },
+                    { titulo: "Actividad 10: Diferentes estrategias para dividir", intencion: "Resolver problemas de división usando resta repetida y relación con la multiplicación.", recurso: "https://la.ixl.com/matematicas/4-grado/operaciones-relacionadas-de-multiplicacion-y-division" },
+                    { titulo: "Actividad 11: Divido usando el algoritmo", intencion: "Resolver problemas usando el algoritmo de la división (exacta e inexacta).", recurso: "https://la.ixl.com/matematicas/4-grado/dividir-por-un-numero-de-dos-cifras-con-resto" },
+                    { titulo: "Actividad 12: La estimación", intencion: "Resolver problemas de multiplicación y división usando estimación por defecto y por exceso." },
+                    { titulo: "Actividad 13: Jugando aprendo y me divierto (Calcu-dado)", intencion: "Retroalimentar las cuatro operaciones básicas usando el juego calcu-dado.", video: "https://www.youtube.com/watch?v=dOMKgd0Z124&t=65s" },
+                    { titulo: "Actividad 14: Conociendo las razones", intencion: "Resolver problemas expresándolos como una razón." }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Expresa como multiplicación las siguientes sumas repetidas y viceversa:", partes: ["a. 20 + 20 + 20 =", "b. 200 + 200 + 200 + 200 =", "c. 8 x 30 =", "d. 35 x 9 ="] },
+                    { numero: 2, enunciado: "Resuelve el siguiente problema: En una tienda de electrodoméstico se vendieron 2 televisores de 32 pulgadas cada uno, si cada televisor cuesta RD$ 16,500, ¿cuánto pagaron por los 2 televisores?" },
+                    { numero: 3, enunciado: "Resuelve el siguiente problema: Caridad tiene un paquete de lapiceros el cual contiene 6 lapiceros azules y 4 lapiceros rojos. ¿Cómo se escribe la relación que representa la razón de la cantidad de lapiceros azules con respecto a los lapiceros rojos? ¿Cómo se lee esta razón?" },
+                    { numero: 4, enunciado: "Escribe una multiplicación, resuélvela y en las flechas indicadas escribe el nombre de cada elemento de la multiplicación." },
+                    { numero: 5, enunciado: "Escribe al lado de cada ejercicio la propiedad aplicada:", partes: ["a. 4 x 6 = 6 x 4", "b. 35 x 1 = 35", "c. 1 x 200 = 200", "d. 0 x 3,565 = 0", "e. (3 x 6) x 8 = 3 x (6 x 8)"] },
+                    { numero: 6, enunciado: "Resuelve el siguiente problema usando la propiedad asociativa de la multiplicación: Juan José tiene en el campo 4 corrales divididos cada uno en 8 espacios, si cada espacio tiene 10 animales, ¿cuántos animales tiene Juan José en esos 4 corrales?" },
+                    { numero: 7, enunciado: "Resuelve el siguiente problema usando potenciación: En una provincia hay 12 residenciales con 12 apartamentos cada residencial ¿Cuántos apartamentos hay en esa provincia?" },
+                    { numero: 8, enunciado: "Escribe una división, resuélvela y escribe al lado los nombres de los elementos de la división en las flechas indicadas." },
+                    { numero: 9, enunciado: "Resuelve el siguiente problema: Una madre quiere repartir RD$ 10,200 para sus 8 hijos, ¿cuánto le tocará a cada hijo si lo reparte en partes iguales?" },
+                    { numero: 10, enunciado: "Resuelve el siguiente problema: Una compañía televisiva quiere comprar varios micrófonos para uno de sus escenarios televisivos, tiene RD$ 4,500 para la compra, si puede comprar solamente 8 micrófonos con ese dinero, ¿qué precio tiene cada micrófono? ¿Cuánto dinero les sobra?" }
+                ]
+            },
+            // SECUENCIA 4: NÚMEROS FRACCIONARIOS Y DECIMALES
+            {
+                id: 4,
+                titulo: "Números Fraccionarios y Decimales",
+                contexto: "La fiesta de cumpleaños en la República Dominicana, donde el bizcocho es el elemento central y una excelente oportunidad para hablar de partes de un todo.",
+                imagen: "https://images.pexels.com/photos/2144112/pexels-photo-2144112.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Fracciones (propias, impropias, mixtas, equivalentes).", "Operaciones con fracciones (+, -, x, ÷).", "Números decimales (décima, centésima).", "Suma y resta de decimales."],
+                actividades: [
+                    { titulo: "Actividad 1: Recordando los números fraccionarios", intencion: "Resolver problemas del entorno usando números fraccionarios." },
+                    { titulo: "Actividad 2: Números fraccionarios en el entorno", intencion: "Resolver problemas del entorno usando números fraccionarios.", recurso: "https://la.ixl.com/matematicas/3-grado/fracciones-simples-partes-de-un-todo" },
+                    { titulo: "Actividad 3: Mis colecciones", intencion: "Resolver problemas usando fracciones como parte de una colección." },
+                    { titulo: "Actividad 4: Usando la recta numérica", intencion: "Resolver problemas con fracciones usando la recta numérica.", recurso: "https://la.ixl.com/matematicas/3-grado/fracciones-de-rectas-numericas" },
+                    { titulo: "Actividad 5: Fracciones propias e impropias", intencion: "Determinar la diferencia entre fracciones propias e impropias.", video: "https://www.youtube.com/watch?v=1hfMRT5Ai-4" },
+                    { titulo: "Actividad 6: Los números mixtos", intencion: "Resolver problemas usando números mixtos." },
+                    { titulo: "Actividad 7: Fracciones equivalentes", intencion: "Resolver problemas usando fracciones equivalentes.", video: "https://www.youtube.com/watch?v=B7I2E78IxsI" },
+                    { titulo: "Actividad 8: Adición y sustracción de fracciones (igual denominador)", intencion: "Resolver problemas con suma y resta de fracciones de igual denominador.", video: "https://www.youtube.com/watch?v=Wv6ulCAS1eQ", recursos: ["https://la.ixl.com/matematicas/3-grado/sumar-fracciones-con-denominadores-iguales", "https://la.ixl.com/matematicas/3-grado/restar-fracciones-con-denominadores-iguales"] },
+                    { titulo: "Actividad 9: Adición y sustracción de fracciones (diferente denominador)", intencion: "Resolver problemas con suma y resta de fracciones de diferente denominador.", video: "https://www.youtube.com/watch?v=Ab5g5psN87c" },
+                    { titulo: "Actividad 10: Multiplicación y división con fracciones", intencion: "Resolver problemas usando multiplicación y división de fracciones." },
+                    { titulo: "Actividad 11: Aprendo jugando", intencion: "Retroalimentar operaciones con fracciones utilizando un juego de tarjetas." },
+                    { titulo: "Actividad 12: Números decimales", intencion: "Resolver problemas en su contexto usando números decimales." },
+                    { titulo: "Actividad 13: Los números decimales", intencion: "Resolver problemas del entorno utilizando suma y resta de números decimales.", video: "https://www.youtube.com/watch?v=eED7s-UIL6g" }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Representa gráficamente las fracciones siguientes:", partes: ["a. 2/5", "b. 3/4", "c. 5/8", "d. 1/3"] },
+                    { numero: 4, enunciado: "Escribe al lado de cada fracción si es propia o impropia:", partes: ["a. 7/5", "b. 2/9", "c. 12/10", "d. 3/4"] },
+                    { numero: 5, enunciado: "Resuelve el siguiente problema: Alexander tiene 4 cajas de regalos llenas de paletas y otra caja que tiene solo la mitad. ¿Expresa como un número mixto la cantidad de paletas que tiene Alexander?" },
+                    { numero: 6, enunciado: "Escribe al lado de los pares de fracciones si estas son equivalentes o no, representa gráficamente para comparar:", partes: ["a. 1/2 y 2/4", "b. 3/5 y 6/10", "c. 2/3 y 4/5", "d. 1/4 y 3/12"] },
+                    { numero: 7, enunciado: "Resuelve el siguiente problema usando números fraccionarios: Rosa tiene una colección de 12 muñecas, de estas 5 son Barbie, 3 son Minene y 4 son Minnie Mouse. ¿Qué fracción representa la cantidad de muñecas Barbie que tiene Rosa con relación al total de muñecas? ¿Cómo se escribe en forma de fracción la cantidad de muñecas Minene que tiene Rosa en relación al total de muñecas?" },
+                    { numero: 8, enunciado: "Analiza y resuelve los siguientes problemas de fracciones:", partes: ["a. En la casa de Alexander queda 1/4 de una pizza y 3/8 de otra pizza, ¿qué cantidad de pizza en total, tiene Alexander?", "b. José compra en el supermercado 1/2 libra de jamón y 3/4 de libra de queso. ¿Qué cantidad de libra de jamón compró más en relación a la cantidad de queso?"] },
+                    { numero: 10, enunciado: "Resuelve el siguiente problema de fracciones: Juana tiene 40 libras de harina pastelera, ella usa por cada galleta 1/8 de libras de harina. ¿Cuántas galletas puede hacer Juana con esas 40 libras de harina?" },
+                    { numero: 11, enunciado: "Escribe al lado los elementos que tiene el siguiente número decimal: 24.78" },
+                    { numero: 12, enunciado: "Escribe cómo se leen y el valor posicional de cada dígito en los siguientes números decimales:", partes: ["a. 43.82", "b. 391.75", "c. 245.90", "d. 4.2", "e. 1.65", "f. 10.4"] },
+                    { numero: 13, enunciado: "Resuelve el siguiente problema: El padre de Félix le compró para su cumpleaños, dos paquetes de juguetes, si costaban RD$ 465.35 y RD$ 184.90 respectivamente. ¿Cuánto pagó el padre de Félix en total? ¿Si pagó con RD$ 1,000 cuánto le devolvieron?" }
+                ]
+            },
+            // SECUENCIA 5: GEOMETRÍA A
+            {
+                id: 5,
+                titulo: "Geometría (A)",
+                contexto: "La Ley de Movilidad y Tránsito, utilizando las señales de tránsito como ejemplos de formas geométricas en el entorno.",
+                imagen: "https://images.pexels.com/photos/533360/pexels-photo-533360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Punto, recta, plano, segmento, rayo.", "Ángulos y su clasificación.", "Relación entre rectas (paralelas, perpendiculares).", "Polígonos (triángulos, cuadriláteros)."],
+                actividades: [
+                    { titulo: "Actividad 1: Conceptos básicos de Geometría", intencion: "Analizar conceptos básicos (punto, recta) identificados en el entorno." },
+                    { titulo: "Actividad 2: Otros conceptos básicos de geometría", intencion: "Describir situaciones del entorno usando conceptos de segmento y rayo.", video: "https://youtu.be/D8KPK2Wmz3E?si=qdFk6LMDfdOideVF" },
+                    { titulo: "Actividad 3: Planos", intencion: "Analizar situaciones del contexto relacionadas con los planos." },
+                    { titulo: "Actividad 4: Los Ángulos", intencion: "Identificar ángulos y sus tipos en situaciones del entorno.", video: "https://www.youtube.com/watch?v=Dl-qJ-uZCgU&ab_channel=MundoPrimaria" },
+                    { titulo: "Actividad 5: Taller de Ángulos", intencion: "Fortalecer la clasificación de los ángulos usando manipulativos." },
+                    { titulo: "Actividad 6: Instrumentos geométricos", intencion: "Utilizar regla, compás y transportador para realizar medidas." },
+                    { titulo: "Actividad 7: Relaciones entre rectas", intencion: "Analizar situaciones del entorno usando diferentes tipos de rectas (paralelas, perpendiculares, oblicuas).", video: "https://www.youtube.com/watch?v=drzHCXmwF3E&t=2s", recurso: "https://wordwall.net/es/resource/5564730/rectas-paralelas-y-perpendiculares" },
+                    { titulo: "Actividad 8: Los polígonos", intencion: "Analizar situaciones del contexto usando polígonos.", video: "https://youtu.be/mNVyInL5uMM?si=YArv22s1xxnrWGUL", recurso: "https://wordwall.net/es/resource/17928166/jogo-da-mem%C3%B3ria-dos-pol%C3%ADgonos" },
+                    { titulo: "Actividad 9: Taller sobre los polígonos", intencion: "Construir el concepto de polígono y sus características usando geoplanos." },
+                    { titulo: "Actividad 10: Los triángulos", intencion: "Identificar y comparar las características de los triángulos.", video: "https://www.youtube.com/watch?v=BUA0tX_ZxMY", recursos: ["https://wordwall.net/es/resource/6399376/clasificaci%C3%B3n-de-tri%C3%A1ngulos", "https://wordwall.net/es/resource/5737327/clasificaci%C3%B3n-de-tri%C3%A1ngulos"] },
+                    { titulo: "Actividad 11: Los cuadriláteros", intencion: "Identificar y resolver situaciones usando cuadriláteros (paralelogramos)." },
+                    { titulo: "Actividad 12: Adivinanzas geométricas", intencion: "Retroalimentar lo trabajado en la secuencia usando adivinanzas." }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Escribe al lado de cada imagen el nombre de esta (punto, recta, segmento, rayo)." },
+                    { numero: 2, enunciado: "Analiza y responde: Alexander dibujó una señal de tránsito como se muestra en la imagen, ¿la señal dibujada puede dar la idea de un plano?" },
+                    { numero: 3, enunciado: "Analiza y responde: La señal de tránsito de ceda el paso. ¿Qué tipo de triángulo es según sus lados? ¿Y según sus ángulos?" },
+                    { numero: 4, enunciado: "Escribe al lado del instrumento su nombre y para qué se usa en geometría (regla, compás, transportador)." },
+                    { numero: 5, enunciado: "Escribe al lado de cada imagen el tipo de recta que son por su relación (paralela, perpendicular, oblicua)." },
+                    { numero: 6, enunciado: "Escribe debajo de cada polígono el nombre correspondiente." },
+                    { numero: 7, enunciado: "Escribe debajo de cada figura una P si es un polígono y una N si no lo es." },
+                    { numero: 8, enunciado: "Dibuja en la cuadrícula dos triángulos, un cuadrado y tres rectángulos." },
+                    { numero: 9, enunciado: "Resuelve la siguiente situación: Manuel estaba de vacaciones para el campo y en el camino observó varias señales de tránsito. ¿Cuáles de ellas tienen forma de polígono? Marca con una X." },
+                    { numero: 10, enunciado: "Dibuja tres señales de tránsito que tengan forma de paralelogramos." }
+                ]
+            },
+            // SECUENCIA 6: GEOMETRÍA B
+            {
+                id: 6,
+                titulo: "Geometría (B)",
+                contexto: "Las viviendas en la República Dominicana, analizando la forma y estructura de las casas y edificios.",
+                imagen: "https://images.pexels.com/photos/16232530/pexels-photo-16232530/free-photo-of-edificios-coloniales-en-la-republica-dominicana.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Congruencia de segmentos y figuras.", "Coordenadas cartesianas.", "Ubicación de puntos y figuras en el plano.", "Rutas en un mapa y puntos cardinales.", "Cubo y prisma regular."],
+                actividades: [
+                    { titulo: "Actividad 1: Explorando la congruencia", intencion: "Analizar elementos congruentes en su entorno comunitario." },
+                    { titulo: "Actividad 2: La congruencia", intencion: "Analizar y resolver situaciones que involucren segmentos y figuras congruentes." },
+                    { titulo: "Actividad 3: La congruencia en geometría", intencion: "Resolver situaciones usando polígonos congruentes.", video: "https://www.youtube.com/watch?v=Y37rNwZ_aGc&ab_channel=DanielCarre%C3%B3n" },
+                    { titulo: "Actividad 4: Conociendo las coordenadas cartesianas", intencion: "Localizar puntos y realizar desplazamientos en un plano." },
+                    { titulo: "Actividad 5: Localizando figuras en el plano", intencion: "Resolver situaciones de ubicación y desplazamientos en el plano cartesiano." },
+                    { titulo: "Actividad 6: Rutas en un mapa", intencion: "Resolver situaciones utilizando croquis y mapas para elaborar rutas." },
+                    { titulo: "Actividad 7: Puntos cardinales", intencion: "Resolver situaciones de ubicación de objetos en relación con los puntos cardinales.", video: "https://www.youtube.com/watch?v=qxwNRos9Jb8&ab_channel=soyAlba" },
+                    { titulo: "Actividad 8: Objetos de tres dimensiones", intencion: "Identificar objetos con forma de prismas y analizar sus características." },
+                    { titulo: "Actividad 9: El prisma especial (Cubo)", intencion: "Identificar similitudes y diferencias entre el cubo y otros prismas.", video: "https://www.youtube.com/watch?v=21-GTS4p-Dg" },
+                    { titulo: "Actividad 10: Taller de construcción", intencion: "Construir prismas rectangulares y cubos con materiales manipulables.", video: "https://www.youtube.com/watch?v=fyzJQMhwI90&ab_channel=Infanciaycomunidad-Toledo" }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Determina si los lados opuestos de los siguientes polígonos son segmentos congruentes." },
+                    { numero: 2, enunciado: "Resuelve el siguiente problema: Una puerta de forma rectangular mide 180 cm de alto y 95 cm de ancho, ¿cuánto tiene que medir de largo y de ancho otra puerta para que sea congruente a la puerta descrita anteriormente?" },
+                    { numero: 3, enunciado: "Une con una línea las figuras congruentes en el siguiente grupo de figuras." },
+                    { numero: 4, enunciado: "Dibuja al lado de cada polígono un polígono congruente al de la imagen. Calca cada vértice de la figura y traza los segmentos correspondientes con una regla." },
+                    { numero: 5, enunciado: "En el siguiente espacio cuadriculado ubica tu casa que queda en el punto (6,4)." },
+                    { numero: 6, enunciado: "Escribe la ubicación de cada una de las siguientes figuras en el plano." },
+                    { numero: 7, enunciado: "Determina la persona A, B o C que tiene la ruta correcta para llegar al auto. Utiliza lápiz de color para determinarlo." },
+                    { numero: 8, enunciado: "Analiza la siguiente situación y responde la pregunta: Rosa está sentada en su casa, se da cuenta que a su derecha le queda el norte y a su izquierda el sur, ¿qué punto cardinal le queda a la espalda de Rosa en esa posición?, ¿y al frente de ella?" },
+                    { numero: 9, enunciado: "Escribe los elementos del siguiente prisma." },
+                    { numero: 10, enunciado: "Dibuja la ruta más corta para ir del aula al baño de la escuela." }
+                ]
+            },
+            // SECUENCIA 7: MEDICIÓN
+            {
+                id: 7,
+                titulo: "Medición",
+                contexto: "El transporte público en la República Dominicana, un espacio para medir distancias, tiempos y capacidades.",
+                imagen: "https://images.pexels.com/photos/16232540/pexels-photo-16232540/free-photo-of-autobus-colorido-en-la-republica-dominicana.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Unidades de medida (metro, centímetro).", "Perímetro y área.", "Cálculo de por cientos con dinero.", "Medidas de tiempo (siglo, año, mes, día, hora, minuto, segundo).", "Temperatura (escalas Celsius)."],
+                actividades: [
+                    { titulo: "Actividad 1: Medición", intencion: "Resolver problemas utilizando diferentes unidades de medida (arbitrarias y convencionales)." },
+                    { titulo: "Actividad 2: Unidades del sistema métrico decimal", intencion: "Resolver problemas usando metros y centímetros." },
+                    { titulo: "Actividad 3: Calculando longitudes", intencion: "Resolver problemas usando suma y resta con longitudes." },
+                    { titulo: "Actividad 4: Buscando el perímetro", intencion: "Resolver problemas del entorno usando el perímetro.", video: "https://www.youtube.com/watch?v=soedLnUpbOY&ab_channel=DanielCarre%C3%B3n", recurso: "https://wordwall.net/es/resource/3101253/per%C3%ADmetro" },
+                    { titulo: "Actividad 5: Taller: El contorno de las figuras", intencion: "Explorar el concepto de perímetro con material concreto." },
+                    { titulo: "Actividad 6: Jugando me divierto", intencion: "Fortalecer las competencias sobre el perímetro con un juego de cartas." },
+                    { titulo: "Actividad 7: El por ciento", intencion: "Resolver problemas en los que apliquen por cientos.", video: "https://www.youtube.com/watch?v=pM2zZlSGTWI" },
+                    { titulo: "Actividad 8: Explorando el área", intencion: "Explorar los conocimientos previos sobre el concepto de área." },
+                    { titulo: "Actividad 9: Áreas", intencion: "Resolver problemas del entorno relacionadas con el área.", video: "https://www.youtube.com/watch?v=142jaFsLZlQ&ab_channel=Matem%C3%A1ticasprofeAlex", recurso: "https://wordwall.net/es/resource/7048238/%C3%A1rea-de-cuadrado-y-rect%C3%A1ngulo-4" },
+                    { titulo: "Actividad 10: Buscando el espacio que ocupa una figura", intencion: "Resolver problemas de su entorno usando el área de las figuras." },
+                    { titulo: "Actividad 11: Jugando me divierto (Ruleta)", intencion: "Fortalecer las competencias sobre el área de polígonos regulares con una ruleta.", recurso: "https://spinthewheel.io/es" },
+                    { titulo: "Actividad 12: El tiempo en que estamos", intencion: "Explorar en el entorno las unidades de medidas del tiempo.", recurso: "https://la.ixl.com/matematicas/3-grado/relacionar-unidades-de-tiempo" },
+                    { titulo: "Actividad 13: La hora de salida", intencion: "Resolver situaciones que apliquen intervalos de tiempo en diferentes momentos." },
+                    { titulo: "Actividad 14: Taller de Tiempo", intencion: "Reforzar el conocimiento sobre las medidas de tiempo con actividades variadas." },
+                    { titulo: "Actividad 15: La temperatura", intencion: "Aplicar el concepto intuitivo de temperatura a diferentes situaciones del entorno." },
+                    { titulo: "Actividad 16: Unidad de medida de la temperatura", intencion: "Resolver problemas que involucren medidas de temperatura.", video: "https://www.youtube.com/watch?v=dMsx-hf1Wvs&ab_channel=Tipseducativosmx", recurso: "https://la.ixl.com/matematicas/3-grado/leer-un-termometro" }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Usando clips determina la longitud del siguiente lápiz." },
+                    { numero: 2, enunciado: "Resuelve el siguiente problema: Nelly tiene una cinta de 300 cm ¿Cuántos metros tiene la cinta de Nelly?" },
+                    { numero: 3, enunciado: "¿Cuál de los siguientes instrumentos permite saber cuánto mide de largo el libro de matemática?" },
+                    { numero: 4, enunciado: "Resuelve el siguiente problema: Una persiana del aula mide 200 cm de altura, ¿cuántos metros aproximadamente mide la persiana del aula?" },
+                    { numero: 5, enunciado: "Resuelve el siguiente problema: Un solar mide 30 metros de largo y 12 metros de ancho ¿cuántos metros mide el solar de largo más el ancho?" },
+                    { numero: 6, enunciado: "Resuelve el siguiente problema: Un pantalón tiene un 20% de descuento. Si el pantalón costaba RD$ 1,500, ¿cuál fue el descuento aplicado al precio del pantalón? ¿Cuál es el precio del pantalón después del descuento?" },
+                    { numero: 7, enunciado: "Resuelve el siguiente problema: La cafetería de la escuela tiene una oferta de un 40% en todos sus artículos. Si Alberto quiere comprar una caja de jugos de RD$ 300, ¿cuál será el descuento aplicado al precio de la caja de jugos?, ¿cuál es el precio que pagará Alberto por la caja de jugo?" },
+                    { numero: 8, enunciado: "Resuelve el siguiente problema: Una guagua ocupa un mismo espacio que tres carros. Si cada carro mide 3 metros de largo y 1 metro de ancho, ¿cuántos metros cuadrados ocupa la guagua?" },
+                    { numero: 9, enunciado: "Determina el área de las siguientes figuras (un cuadrado de 5cm, un rectángulo de 3cm x 2cm)." },
+                    { numero: 10, enunciado: "Dibuja un rectángulo que su área sea 12 cm²." },
+                    { numero: 11, enunciado: "Dibuja un cuadrado que su área sea 25 cm²." },
+                    { numero: 12, enunciado: "Determina el área de las siguientes figuras." },
+                    { numero: 13, enunciado: "Resuelve el siguiente problema: Alexander tarda para llegar a su casa 30 minutos y Alberto 1,800 segundos. ¿Quién tarda más en el camino Alexander o Alberto?" },
+                    { numero: 14, enunciado: "Resuelve la siguiente situación: Los carros de una ruta de concho pasan cada 20 minutos. Si son las 9:45 a. m., ¿a qué hora pasa el siguiente carro?" },
+                    { numero: 15, enunciado: "Escribe al lado la equivalencia en cada caso:", partes: ["a. En un siglo hay ___ años.", "b. En 2 meses hay ___ días.", "c. 5 minutos es igual a ___ segundos.", "d. 4 años es igual a ___ meses.", "e. 6 días es igual a ___ horas."] },
+                    { numero: 16, enunciado: "Resuelve la siguiente situación: Jasmín tiene 39°C de temperatura y Nelly tiene 36°C. ¿Ambas tienen una temperatura normal? ¿Por qué?" }
+                ]
+            },
+            // SECUENCIA 8: ESTADÍSTICA
+            {
+                id: 8,
+                titulo: "Estadística",
+                contexto: "El Consejo de Curso, utilizando el proceso de elecciones estudiantiles para recolectar, organizar y analizar datos.",
+                imagen: "https://images.pexels.com/photos/1109541/pexels-photo-1109541.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+                competencias: ["Expresión de ideas matemáticas.", "Formulación de soluciones lógicas.", "Reconocimiento de normas de convivencia."],
+                contenidos: ["Recolección y organización de datos.", "Tablas de conteo y frecuencia.", "Pictogramas.", "Gráficas de barras."],
+                 actividades: [
+                    { titulo: "Actividad 1: Me divierto con la estadística", intencion: "Explorar la recolección, organización y clasificación de datos." },
+                    { titulo: "Actividad 2: Tablas de conteo", intencion: "Resolver problemas utilizando tablas de conteo." },
+                    { titulo: "Actividad 3: Pictogramas", intencion: "Elaborar e interpretar información utilizando pictogramas." },
+                    { titulo: "Actividad 4: Pictogramas (Análisis)", intencion: "Analizar e interpretar información de un pictograma.", recurso: "https://wordwall.net/es/resource/17127904/interpretando-gr%C3%A1昀椀cos-y-pictogramas" },
+                    { titulo: "Actividad 5: Gráficas de barras", intencion: "Construir y analizar gráficos de barras del contexto escolar.", video: "https://www.youtube.com/watch?app=desktop&v=J-lDNbXM2wE", recurso: "https://wordwall.net/es/resource/22783788/graficos-de-barra" },
+                    { titulo: "Actividad 6: Gráficas de barras (Análisis)", intencion: "Analizar problemas del contexto representados en gráficos de barras.", recurso: "https://wordwall.net/es/resource/14845689/gra昀椀co-de-barra" },
+                    { titulo: "Actividad 7: Taller de Gráficos", intencion: "Retroalimentar los conocimientos sobre gráficos de barras con un taller práctico." }
+                ],
+                evaluacion: [
+                    { numero: 1, enunciado: "Selecciona la respuesta correcta en cada caso:", partes: ["La cantidad de veces que aparece un dato se llama: a. Marca de conteo b. Pictograma c. Frecuencia", "El gráfico que se representa con rectángulos se llama: a. Marca de conteo b. Pictograma c. De barras", "Cómo se llama a la imagen que se coloca debajo en el pictogramas que indica la cantidad que vale cada imagen: a. Marca de conteo b. Leyenda c. Frecuencia", "Cómo se llama la marca que se usa para representar un dato en un tabla de conteo: a. Marca de conteo b. Pictograma c. Frecuencia", "El gráfico que se construye con imágenes se llama: a. Marca de conteo b. Pictograma c. Gráfica de barras"] },
+                    { numero: 2, enunciado: "Elabora una tabla de conteo con los siguientes datos: El color preferido de los estudiantes de 4to C es: Verde, azul, verde, rojo, amarillo, negro, rosado, blanco, azul, verde, rosado, negro, blanco, blanco, azul, rojo, morado, negro, marrón, azul, rojo, rojo, verde." },
+                    { numero: 3, enunciado: "Responde las siguientes preguntas usando el pictograma que está debajo (Cada imagen = 10 monopatines):", partes: ["a. ¿Cuántos monopatines se vendieron en enero?", "b. ¿Cuántos monopatines se vendieron desde abril hasta julio?", "c. ¿Cuántos monopatines se vendieron en febrero más que en abril?", "d. ¿Cuántos monopatines se vendieron desde enero hasta junio?"] },
+                    { numero: 4, enunciado: "Elabora un gráfico de barras sobre los deportes preferidos por los estudiantes de 4° grado.", partes: ["a. Utilizar los siguientes deportes: béisbol, fútbol, atletismo, boxeo, voleibol.", "b. Realizar la encuesta.", "c. Hacer el gráfico de barras."] },
+                    { numero: 5, enunciado: "Responde las siguientes preguntas usando el siguiente gráfico de barras:", partes: ["a. ¿Cuál es el helado favorito?", "b. ¿Cuál es el helado menos favorito?", "c. ¿Cuántos niños prefieren el helado de chocolate?", "d. ¿Cuántos niños prefieren el helado de limón?", "e. ¿Cuántos niños prefieren el helado de chicle?", "f. ¿Cuántos niños fueron encuestados?"] }
+                ]
+            }
+        ];
+
+        
+        const app = document.getElementById('app');
+        let currentSequenceId = null;
+
+        window.handleLogin = function(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            if (usuarios[user] && usuarios[user] === pass) {
+                document.querySelector('footer').classList.remove('hidden');
+                renderDashboard();
+            } else {
+                errorMessage.textContent = 'Usuario o contraseña incorrectos.';
+            }
+        }
+
+        window.renderLogin = function() {
+            app.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-gray-100">
+                    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8 m-4">
+                        <div class="text-center mb-8">
+                            <img src="https://images.pexels.com/photos/374918/pexels-photo-374918.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Estudiante de matemáticas resolviendo un problema" class="w-32 h-32 mx-auto rounded-full object-cover mb-4">
+                            <h1 class="text-2xl font-bold text-gray-800">Guía Didáctica Interactiva</h1>
+                            <p class="text-pink-600">Matemática 4.º Grado</p>
+                        </div>
+                        <form onsubmit="handleLogin(event)">
+                            <div class="mb-4">
+                                <label for="username" class="block text-sm font-medium text-gray-700">Usuario</label>
+                                <input type="text" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Ingrese su usuario">
+                            </div>
+                            <div class="mb-6">
+                                <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                                <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Ingrese su contraseña">
+                            </div>
+                             <p id="error-message" class="text-red-500 text-sm text-center mb-4"></p>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500">
+                                Acceder
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.getElementById('ai-button-container').innerHTML = '';
+            document.querySelector('footer').classList.add('hidden');
+        }
+        
+        window.renderDashboard = function() {
+            let dashboardHTML = `
+                <header class="text-center mb-10">
+                    <div class="flex flex-wrap justify-between items-center gap-4">
+                        <a href="assets/Guia_Matematicas_4to.pdf" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">Ver Guía Original (PDF)</a>
+                        <div class="flex-grow text-center">
+                            <h1 class="text-4xl font-bold text-gray-900">Guía Didáctica Interactiva</h1>
+                            <p class="text-xl text-pink-600 mt-2">Matemática 4.º Grado - Nivel Primario</p>
+                        </div>
+                        <button onclick="renderLogin()" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors text-sm">Cerrar Sesión</button>
+                    </div>
+                </header>
+                <main>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        ${datosGuia.map(secuencia => `
+                            <div onclick="renderSequenceDetail(${secuencia.id})" class="card-hover-effect cursor-pointer bg-white rounded-lg shadow-md overflow-hidden">
+                                <img src="${secuencia.imagen}" alt="Imagen de ${secuencia.titulo}" class="w-full h-40 object-cover">
+                                <div class="p-5">
+                                    <h2 class="text-lg font-semibold text-gray-800">Secuencia ${secuencia.id}</h2>
+                                    <h3 class="text-md font-bold text-pink-600 mb-2">${secuencia.titulo}</h3>
+                                    <p class="text-gray-600 text-sm">${secuencia.contexto.substring(0, 80)}...</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </main>
+            `;
+            app.innerHTML = dashboardHTML;
+            renderFloatingAIButton();
+        }
+        
+        window.renderSequenceDetail = function(id) {
+            currentSequenceId = id;
+            const secuencia = datosGuia.find(s => s.id === id);
+            if (!secuencia) {
+                renderDashboard();
+                return;
+            }
+
+            const evaluacionHTML = `
+                <div>
+                    <h3 class="text-xl font-semibold text-pink-600 mb-4">Evaluación de la Secuencia</h3>
+                    <p class="text-sm text-gray-600 mb-6">A continuación se presentan los problemas y ejercicios para la evaluación. La escala de valoración es: Destacado (89-100), Logrado (77-88), En proceso (65-76), Insuficiente (<65).</p>
+                    <div class="space-y-4">
+                        ${(secuencia.evaluacion || []).map(p => `
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <p class="font-semibold text-gray-800">${p.numero}. ${p.enunciado}</p>
+                                ${p.partes ? `
+                                    <ul class="list-disc list-inside ml-5 mt-2 space-y-1 text-gray-700">
+                                        ${p.partes.map(parte => `<li>${parte}</li>`).join('')}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+
+            let detailHTML = `
+                <header class="mb-8">
+                     <div class="flex justify-between items-center mb-4">
+                        <button onclick="renderDashboard()" class="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors">&larr; Volver al Inicio</button>
+                         <button onclick="renderLogin()" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-colors text-sm">Cerrar Sesión</button>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900">Secuencia ${secuencia.id}: ${secuencia.titulo}</h1>
+                    <p class="text-lg text-gray-600 mt-2">${secuencia.contexto}</p>
+                </header>
+                
+                <main class="bg-white rounded-lg shadow-lg p-6">
+                    <!-- Pestañas -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-6" id="tabs">
+                            <button onclick="changeTab(this, 'tab-vision')" class="tab-active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Visión General</button>
+                            <button onclick="changeTab(this, 'tab-actividades')" class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm">Banco de Actividades</button>
+                            <button onclick="changeTab(this, 'tab-evaluacion')" class="whitespace-nowrap py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm">Evaluación</button>
+                        </nav>
+                    </div>
+
+                    <!-- Contenido de Pestañas -->
+                    <div id="tab-vision" class="tab-content">
+                        <h3 class="text-xl font-semibold text-pink-600 mb-3">Competencias a Desarrollar</h3>
+                        <ul class="list-disc list-inside space-y-2 mb-6">
+                            ${secuencia.competencias.map(c => `<li class="text-gray-700">${c}</li>`).join('')}
+                        </ul>
+                        <h3 class="text-xl font-semibold text-pink-600 mb-3">Contenidos</h3>
+                        <p class="text-gray-700">${secuencia.contenidos.join(', ')}.</p>
+                    </div>
+                    
+                    <div id="tab-actividades" class="tab-content hidden space-y-4">
+                        ${(secuencia.actividades || []).map((act, index) => `
+                            <div class="border border-gray-200 rounded-lg">
+                                <button onclick="toggleAccordion(this)" class="w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center">
+                                    <span class="font-semibold text-gray-800">${act.titulo}</span>
+                                    <svg class="w-5 h-5 transform transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div class="hidden p-4 border-t border-gray-200">
+                                    <p class="font-medium text-pink-600 mb-2">Intención Pedagógica:</p>
+                                    <p class="text-gray-700 mb-4">${act.intencion}</p>
+                                    ${act.video || act.recurso || act.recursos ? `
+                                    <div class="mt-4">
+                                        <h4 class="font-semibold mb-2">Recursos Sugeridos:</h4>
+                                        <div class="flex flex-col space-y-2">
+                                            ${act.video ? `<a href="${act.video}" target="_blank" class="text-blue-600 hover:underline">Ver Video en YouTube</a>` : ''}
+                                            ${act.recurso ? `<a href="${act.recurso}" target="_blank" class="text-blue-600 hover:underline">Actividad Interactiva</a>` : ''}
+                                            ${act.recursos ? act.recursos.map(r => `<a href="${r}" target="_blank" class="text-blue-600 hover:underline">Recurso Interactivo</a>`).join('') : ''}
+                                        </div>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div id="tab-evaluacion" class="tab-content hidden">
+                        ${evaluacionHTML}
+                    </div>
+                </main>
+            `;
+            app.innerHTML = detailHTML;
+            renderFloatingAIButton(id);
+        }
+
+        function renderFloatingAIButton(sequenceId = null) {
+             document.getElementById('ai-button-container').innerHTML = `
+                <button onclick="openAIModal(${sequenceId})" class="fixed bottom-8 right-8 bg-pink-600 text-white p-4 rounded-full shadow-lg hover:bg-pink-700 transition-transform hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                </button>
+            `;
+        }
+
+        function openAIModal(sequenceId = null) {
+            currentSequenceId = sequenceId;
+            document.getElementById('ai-modal').classList.remove('hidden');
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML = `
+                <div class="ai-chat-bubble-assistant self-start max-w-xs md:max-w-md p-3 rounded-lg">
+                    <p>¡Hola! Soy tu Asistente Docente. ¿Cómo puedo ayudarte a preparar tu clase hoy? Puedes pedirme que genere nuevos problemas, adapte ejercicios o te dé ideas de actividades.</p>
+                </div>
+            `;
+        }
+
+        function closeAIModal() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        async function sendAIMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('ai-input');
+            const userQuery = input.value;
+            if (!userQuery.trim()) return;
+
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML += `<div class="ai-chat-bubble-user self-end max-w-xs md:max-w-md p-3 rounded-lg"><p>${userQuery}</p></div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            input.value = '';
+
+            document.getElementById('ai-loading').classList.remove('hidden');
+
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            let contextText = "El maestro está en el panel principal de la guía didáctica.";
+            if (currentSequenceId !== null) {
+                const sequence = datosGuia.find(s => s.id === currentSequenceId);
+                if (sequence) {
+                   contextText = `El maestro está viendo la Secuencia ${sequence.id}: "${sequence.titulo}", cuyo contexto es: "${sequence.contexto}".`;
+                }
+            }
+
+            const systemPrompt = "Eres un asistente docente experto en matemáticas para 4.º grado de primaria en República Dominicana. Tu objetivo es ayudar a los maestros a planificar y enriquecer sus clases. Basa tus respuestas en la guía didáctica y el contexto proporcionado. Sé creativo, práctico y genera respuestas claras y concisas en formato Markdown. Proporciona ideas para actividades, adapta problemas o genera nuevos ejemplos según se te pida.";
+            const fullPrompt = `${contextText}\n\nSolicitud del maestro: "${userQuery}"`;
+
+            const payload = {
+                contents: [{ parts: [{ text: fullPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text || "No pude procesar la solicitud en este momento.";
+                
+                const formattedHtml = marked.parse(aiText);
+
+                chatBox.innerHTML += `<div class="ai-chat-bubble-assistant self-start max-w-xs md:max-w-md p-3 rounded-lg markdown-content">${formattedHtml}</div>`;
+            } catch (error) {
+                chatBox.innerHTML += `<div class="ai-chat-bubble-assistant self-start max-w-xs md:max-w-md p-3 rounded-lg"><p>Hubo un error al conectar con el asistente. Por favor, intenta de nuevo.</p></div>`;
+                console.error('Error fetching AI response:', error);
+            } finally {
+                document.getElementById('ai-loading').classList.add('hidden');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+        
+        function changeTab(button, tabId) {
+            document.querySelectorAll('#tabs button').forEach(b => {
+                b.classList.remove('tab-active', 'text-pink-600');
+                b.classList.add('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'border-transparent');
+            });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+            button.classList.add('tab-active', 'text-pink-600');
+            button.classList.remove('text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'border-transparent');
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+        
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // Asignar funciones al objeto window para que sean accesibles desde los `onclick`
+        window.handleLogin = handleLogin;
+        window.renderDashboard = renderDashboard;
+        window.renderSequenceDetail = renderSequenceDetail;
+        window.renderLogin = renderLogin;
+        window.openAIModal = openAIModal;
+        window.closeAIModal = closeAIModal;
+        window.sendAIMessage = sendAIMessage;
+        window.changeTab = changeTab;
+        window.toggleAccordion = toggleAccordion;
+
+        // Iniciar la aplicación
+        renderLogin();
+
+    </script>
+</body>
+</html>
